@@ -26,15 +26,19 @@ public:
     int getRandomNumber();
     void startNewGame();
     void resetScores();
+    void checkIfEndGame();
+    void endGame();
 
 private slots:
     void mineTriggeredSlot(Square *s);
     void nextTurnSlot();
     void searchForNearbyMinesSlot(Square *s);
     void flagSetSlot();
+    void flagRemovedSlot();
     void resetPointsLabels();
     void on_newGameButton_clicked();
     void on_forfeitButton_clicked();
+    void SquareClickedSlot();
 
 private:
     Ui::MainWindow *ui;
@@ -58,6 +62,8 @@ private:
 
     // Used to calculate percentage of population alive in a given turn
     int total_pop_ = y_cells_ * x_cells_;
+
+    int total_squares_clicked_ = 0;
 
     // Pct square that are mines, on average. A number between 1 and 100.
     int difficulty_ = 15;

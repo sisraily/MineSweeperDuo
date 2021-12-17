@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     startNewGame();
 }
 
+
 /*
  * Generates a new game by creating new grid of cells composed of mines and empty squares.
  * also resets players scores.
@@ -38,48 +39,34 @@ void MainWindow::startNewGame(){
     player_1_scene->setSceneRect(0,0,this->scene_width_,this->scene_height_);
     player_1_view->setScene(player_1_scene);
 
+    int game_difficulty = this->difficulty_;
+
     // Generate empty squares on the board, at start.
     for (int i = 0; i<x_cells_; i++){
         for (int j = 0; j<y_cells_; j++){
-            this->cells_[i][j] = square_factory->Create(QString("empty"),i,j);
-            connect(cells_[i][j],&Square::triggerMine,this,&MainWindow::mineTriggeredSlot);
+
+            // random number between 0 and 100
+            int randNum = getRandomNumber();
+
+            // We add mine to square, based on difficulty
+            if (randNum < game_difficulty){
+                this->cells_[i][j] = square_factory->Create(QString("mine"),i,j);
+                connect(cells_[i][j],&MineSquare::triggerMine,this,&MainWindow::mineTriggeredSlot);
+
+            }
+            // No mine added
+            else {
+                this->cells_[i][j] = square_factory->Create(QString("empty"),i,j);
+                connect(cells_[i][j],&Square::searchForNearbyMines,this,&MainWindow::searchForNearbyMinesSlot);
+            }
             connect(cells_[i][j],&Square::nextTurn,this,&MainWindow::nextTurnSlot);
-            connect(cells_[i][j],&Square::searchForNearbyMines,this,&MainWindow::searchForNearbyMinesSlot);
             connect(cells_[i][j],&Square::flagSet,this,&MainWindow::flagSetSlot);
+            connect(cells_[i][j],&Square::flagRemoved,this,&MainWindow::flagRemovedSlot);
+            connect(cells_[i][j],&Square::squareClickedSignal,this,&MainWindow::SquareClickedSlot);
             player_1_scene->addItem(cells_[i][j]);
         }
     }
 
-
-    // Generate mines randomly on board based on difficulty.
-    for (int i = 0; i<x_cells_; i++){
-        for (int j = 0; j<y_cells_; j++){
-
-            // Rnadom number generator for placing mines in random squares.
-            int randNum = getRandomNumber();
-
-            // ***Add mine to square, based on difficulty.***
-            if (randNum < this->difficulty_){
-                // Sets a mine in square area.
-                this->cells_[i][j]->setMine();
-
-                // increase the count of nearby squares.
-                for(int k=0;k<8;k++)
-                {
-                    int neighbor_x = i + neighborsX_[k];
-                    int neighbor_y = j + neighborsY_[k];
-
-                  /* if not edge cases */
-                    if (!((neighbor_x < 0)||(neighbor_x == x_cells_)|| (neighbor_y < 0) || (neighbor_y == y_cells_))){
-                        this->cells_[neighbor_x][neighbor_y]->incNearbyMineCount();
-                   }
-
-                }
-
-            }
-
-        }
-    }
     this->set_blank_squares();
 }
 
@@ -102,6 +89,30 @@ int MainWindow::getRandomNumber(){
  * Sets square that don't have mines nearby to blank
 */
 void MainWindow::set_blank_squares(){
+
+    // Square that have nearby mines have a number corresponging to how many near by mines
+    for (int i = 0; i<x_cells_; i++){
+        for (int j = 0; j<y_cells_; j++){
+            if (cells_[i][j]->isMine()){
+                for(int k=0;k<8;k++)
+                {
+                    int neighbor_x = i + neighborsX_[k];
+                    int neighbor_y = j + neighborsY_[k];
+
+                    /* Check if in bounds. I.e., within the game rectangle. */
+                    if (!((neighbor_x < 0)||(neighbor_x == x_cells_)|| (neighbor_y < 0) || (neighbor_y == y_cells_))){
+                        this->cells_[neighbor_x][neighbor_y]->incNearbyMineCount();
+                   }
+
+                }
+
+            }
+
+        }
+    }
+
+
+    // Squares that don't have a nearby mine
     for (int i = 0; i < x_cells_; i++){
         for (int j = 0; j < y_cells_; j++){
             if (this->cells_[i][j]->getNearbytMineCount() == 0){
@@ -130,10 +141,10 @@ void MainWindow::mineTriggeredSlot(Square *s){
  * which player's turn it is.
 */
 void MainWindow::nextTurnSlot(){
+    this->checkIfEndGame();
     this->counter_ += 1;
 
      if (this->counter_%2 == 0){
-
          ui->groupBox1->setStyleSheet("border: 3px solid darkCyan");
          ui->groupBox2->setStyleSheet("border-color: gray;");
 
@@ -145,6 +156,14 @@ void MainWindow::nextTurnSlot(){
      }
 
      update();
+}
+
+
+/*
+ * Gets triggered any square is clicked. Updates total squares clicked counter.
+*/
+void MainWindow::SquareClickedSlot(){
+    this->total_squares_clicked_ += 1;
 }
 
 
@@ -188,12 +207,9 @@ void MainWindow::searchForNearbyMinesSlot(Square *s){
 
         this->adjustPoints(this->points_empty_square_);
 
-
         while (true){
             int x_coord = s->get_x()/15;
             int y_coord = s->get_y()/15;
-
-            //qDebug() << x_coord << y_coord;
 
             for(int k=0;k<8;k++)
             {
@@ -206,7 +222,6 @@ void MainWindow::searchForNearbyMinesSlot(Square *s){
                         squares_to_show_.enqueue(cells_[neighbor_x][neighbor_y]);
 
                         cells_[neighbor_x][neighbor_y]->showBlank();
-                        //searchForNearbyMinesSlot(cells_[neighbor_x][neighbor_y]);
                   }
                   else if ((!cells_[neighbor_x][neighbor_y]->isMine()) && (!cells_[neighbor_x][neighbor_y]->getIsPressed())){
                       cells_[neighbor_x][neighbor_y]->showCount();
@@ -233,6 +248,14 @@ void MainWindow::flagSetSlot(){
     this->adjustPoints(10);
 }
 
+
+/*
+ * Called when a user removes a flag not placed on a mine.
+ * Player will earn 10 points.
+*/
+void MainWindow::flagRemovedSlot(){
+    this->adjustPoints(10);
+}
 
 /*
  * Adjust users' points based on quantity.
@@ -278,6 +301,14 @@ void MainWindow::on_newGameButton_clicked()
 */
 void MainWindow::on_forfeitButton_clicked()
 {
+    this->endGame();
+}
+
+
+/*
+ * Ends the game and displays the winner on screen
+ */
+void MainWindow::endGame(){
     ui->label_logo->show();
     ui->newGameButton->setDisabled(0);
     ui->forfeitButton->setDisabled(1);
@@ -297,6 +328,14 @@ void MainWindow::on_forfeitButton_clicked()
 
     this->resetScores();
     this->startNewGame();
+}
+
+
+void MainWindow::checkIfEndGame(){
+    if (this->total_squares_clicked_ == this->total_pop_){
+        //game won
+        this->endGame();
+    }
 }
 
 

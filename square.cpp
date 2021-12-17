@@ -6,18 +6,18 @@
 #include "square.h"
 #include <QPixmap>
 
+
 /**
   Creates a new square object at these x, and y coordinates
   @param x int x coordinate
   @param y int y coordinate
 */
 Square::Square(const int x,const int y) {
-  x_ = x*width_;
-  y_ = y*height_;
-
 
   // set initial color:
   QColor c(128, 128, 128);
+  this->x_ = x*width_;
+  this->y_ = y*height_;
   this->color_ = c;
 }
 
@@ -53,7 +53,6 @@ void Square::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
 
 
 void Square::showCount(){
-
     QString mc = QString::number(this->getNearbytMineCount());
     this->square_type_ = ":/images/" + mc + ".png";
     this->is_pressed_  = true;
@@ -63,16 +62,15 @@ void Square::showCount(){
 
 void Square::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-
     if(event->button() == Qt::RightButton){
         // set flags
-        qDebug() << "Sets flags";
         if (!this->is_pressed_){
             this->square_type_ = ":/images/flag2.png";
             this->setFlag();
 
             if (this->isMine()){
-               flagSet();
+                emit flagSet();
+                this->squareClicked();
             }
         }
         else if (this->getIsFlag() && !this->isMine()){
@@ -82,33 +80,32 @@ void Square::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
     }
     else if (event->button() == Qt::LeftButton){
-        // check if its first turn
+
         // check if mine present.
-        qDebug() << "Mine present: ";
         if (!this->is_pressed_){
             if (this->isMine()){
-                this->is_pressed_ = true;
-                qDebug() << "Yes!";
+
+                this->squareClicked();
+
+                // Currently the first turn can land on a mine, to change this, check if its first turn here.
+
                 // Decrease points by 10 here.
                 // emit steped on mine.
                 this->square_type_ = ":/images/mine3.png";
-                triggerMine(this);
+                emit triggerMine(this);
             }
             else {
-                qDebug() << "No!";
                 this->square_type_ = ":/images/emptypressed.png";
-                this->is_pressed_ = true;
-                searchForNearbyMines(this);
-                // Increase points by 1 here.
-                // emit continue.
+                this->squareClicked();
+                emit searchForNearbyMines(this);
             }
         }
-
     }
     update();
 
+
     // emits a signal to tell slots that the next turn is up.
-    nextTurn();
+    emit nextTurn();
 }
 
 
@@ -117,7 +114,7 @@ void Square::mousePressEvent(QGraphicsSceneMouseEvent *event)
  */
 void Square::setFlag(){
     this->is_flag_ = true;
-    this->is_pressed_ = true;
+    this->squareClicked();
 }
 
 
@@ -127,6 +124,7 @@ void Square::setFlag(){
 void Square::removeFlag(){
     this->is_flag_ = false;
     this->is_pressed_ = false;
+    emit flagRemoved();
 }
 
 
@@ -137,4 +135,13 @@ void Square::showBlank(){
     this->square_type_ = ":/images/emptypressed.png";
     this->is_pressed_ = true;
     update();
+}
+
+
+/*
+ *
+ */
+void Square::squareClicked(){
+    this->is_pressed_ = true;
+    //this->total_squares_clicked_ += 1;
 }

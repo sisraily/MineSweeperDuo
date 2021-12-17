@@ -5,13 +5,12 @@
 #include <QGraphicsItem>
 #include <QString>
 
-
 class Square : public QObject, public QGraphicsItem {
     Q_OBJECT
 
     public:
         explicit Square(const int x,const int y);
-        bool isMine(){return this->is_mine_;} // inline member function
+        virtual bool isMine(){return this->is_mine_;} // inline member function
         void setMine(){this->is_mine_ = 1;} // inline member function
         void incNearbyMineCount(){this->nearby_mines_+=1;}
         int getNearbytMineCount() const {return nearby_mines_;}
@@ -20,10 +19,13 @@ class Square : public QObject, public QGraphicsItem {
         int get_x() const { return (x_); }  // inline member function
         int get_y() const { return (y_); }  // inline member function
 
+        // marks square as pressed.
+        void squareClicked();
+
         // sets the square as a blank square, meaning there are no nearby mines.
         void setBlank(){this->is_blank_ = true; }
 
-        bool isBlank(){return this->is_blank_;}
+        virtual bool isBlank(){return this->is_blank_;}
         void showBlank();
         void showCount();
         void setFlag();
@@ -38,6 +40,8 @@ class Square : public QObject, public QGraphicsItem {
         void searchForNearbyMines(Square *s);
         void nextTurn();
         void flagSet();
+        void flagRemoved();
+        void squareClickedSignal();
 
     private:
 
@@ -79,9 +83,10 @@ protected:
 class MineSquare: public Square{
     public:
         explicit MineSquare(const int x,const int y) : Square(x,y){}
-        void setMine(){this->is_mine_ = 1;}
+        //void setMine(){this->is_mine_ = 1;}
+        bool isMine(){return 1;}
+        bool isBlank(){return 0;}
     private:
-        bool is_mine_ = 1;
         QString hidden_square_type_ = ":/images/mine3.png";
 
 };
@@ -93,8 +98,8 @@ class MineSquare: public Square{
 class EmptySquare: public Square{
     public:
         explicit EmptySquare(const int x,const int y) : Square(x,y){}
+    bool isMine(){return 0;}
     private:
-        bool is_mine_ = 0;
          QString hidden_square_type_ = ":/images/emptypressed.png";
 };
 
