@@ -16,7 +16,8 @@ SOURCES += \
 HEADERS += \
     mainwindow.h \
     player.h \
-    square.h
+    square.h \
+    squarefactory.h
 
 FORMS += \
     mainwindow.ui

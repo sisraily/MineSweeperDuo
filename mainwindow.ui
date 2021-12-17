@@ -11,17 +11,17 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>MineSweeper Duo</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="forfeitButton">
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>460</y>
+      <y>490</y>
       <width>130</width>
       <height>25</height>
      </rect>
@@ -122,9 +122,9 @@ background-color: rgb(238, 238, 236);</string>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>100</y>
+       <y>90</y>
        <width>131</width>
-       <height>17</height>
+       <height>31</height>
       </rect>
      </property>
      <property name="styleSheet">
@@ -153,10 +153,62 @@ border-color: rgb(238, 238, 236);</string>
      </property>
     </widget>
    </widget>
+   <widget class="QLabel" name="label_logo">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>20</y>
+      <width>541</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 12pt &quot;Chilanka&quot;;</string>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;img src=&quot;:/images/logo.png&quot; width=&quot;256&quot; height=&quot;256&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="newGameButton">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>450</y>
+      <width>130</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 63 11pt &quot;URW Gothic&quot;;
+gridline-color: rgb(196, 160, 0);</string>
+    </property>
+    <property name="text">
+     <string>New Game</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="winner_label">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>530</y>
+      <width>221</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 16pt &quot;Chilanka&quot;;</string>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
    <zorder>groupBox1</zorder>
    <zorder>groupBox2</zorder>
-   <zorder>pushButton</zorder>
+   <zorder>forfeitButton</zorder>
    <zorder>player_1_view</zorder>
+   <zorder>newGameButton</zorder>
+   <zorder>label_logo</zorder>
+   <zorder>winner_label</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

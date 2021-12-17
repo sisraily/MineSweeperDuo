@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <player.h>
 #include <QQueue>
+#include <squarefactory.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,12 +23,18 @@ public:
     void set_blank_squares();
     ~MainWindow();
     void adjustPoints(int count);
+    int getRandomNumber();
+    void startNewGame();
+    void resetScores();
 
 private slots:
     void mineTriggeredSlot(Square *s);
     void nextTurnSlot();
     void searchForNearbyMinesSlot(Square *s);
     void flagSetSlot();
+    void resetPointsLabels();
+    void on_newGameButton_clicked();
+    void on_forfeitButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -38,10 +45,7 @@ private:
     static const int scene_height_ = 375;
 
 
-    // Cells view will have a height of 20 cells and 10 rows of cells (200 total).
-    // y coordinates
     static const int y_cells_ = ((scene_width_/15));
-    // x coordinates
     static const int x_cells_ = ((scene_width_/15));
 
     Square * cells_[x_cells_][y_cells_];
@@ -55,8 +59,6 @@ private:
     // Used to calculate percentage of population alive in a given turn
     int total_pop_ = y_cells_ * x_cells_;
 
-    QTimer *timer = new QTimer(this);
-
     // Pct square that are mines, on average. A number between 1 and 100.
     int difficulty_ = 15;
 
@@ -67,13 +69,14 @@ private:
     player player1 = {1,0,0};
     player player2 = {2,0,0};
 
-    // points for triggering a mine
+    /** Points for various game options stored here **/
     int points_mine_trigger_ = -10;
-
     int points_empty_square_ = 1;
-    // queue of empty squares near the ones the user clicks.
+
+    // A queue used to display nearby squares to an empty square, on user click.
     QQueue<Square *> squares_to_show_;
+
+    // Factory that generates new type of squares.
+    SquareFactory * square_factory = new SquareFactory();
 };
-
-
 #endif // MAINWINDOW_H

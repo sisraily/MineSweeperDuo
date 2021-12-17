@@ -110,3 +110,31 @@ void Square::mousePressEvent(QGraphicsSceneMouseEvent *event)
     // emits a signal to tell slots that the next turn is up.
     nextTurn();
 }
+
+
+/*
+ * Adds a flag to a square.
+ */
+void Square::setFlag(){
+    this->is_flag_ = true;
+    this->is_pressed_ = true;
+}
+
+
+/*
+ * Removes a flag the user placed that was not on a mine.
+ */
+void Square::removeFlag(){
+    this->is_flag_ = false;
+    this->is_pressed_ = false;
+}
+
+
+/*
+ * Shows a pressed button, when the user clicks an empty button.
+ */
+void Square::showBlank(){
+    this->square_type_ = ":/images/emptypressed.png";
+    this->is_pressed_ = true;
+    update();
+}
