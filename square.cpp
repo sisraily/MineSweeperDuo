@@ -114,7 +114,6 @@ void Square::mousePressEvent(QGraphicsSceneMouseEvent *event)
  */
 void Square::setFlag(){
     this->is_flag_ = true;
-    this->squareClicked();
 }
 
 

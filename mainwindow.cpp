@@ -86,7 +86,8 @@ int MainWindow::getRandomNumber(){
 
 
 /*
- * Sets square that don't have mines nearby to blank
+ * Sets square that don't have mines nearby to either a number, which represents how many
+ * mines are nearby or simply a blank square if not near any mines.
 */
 void MainWindow::set_blank_squares(){
 
